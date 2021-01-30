@@ -1,0 +1,16 @@
+# EDIT LOCATION FILE SAVED HERE (example: "C:/Users/resmi/Documents")
+setwd("C:/Users/resmi/Documents")
+
+# Call your dataset
+dataset <- read.delim("dataset.txt", quote = "")
+attach(dataset)
+
+#UPDATE THE X & Y AXIS NAMES; PLEASE REMEMBER TO ADD A PERIOD '.' BETWEEN AXIS NAME SPACE ("NonBrand.Clicks") & AXIS NAMES ARE CASE SENSITIVE ("NonBrand.Clicks" is different from "nonbrand.clicks")
+x <- dataset$SumSRPV
+y <- dataset$SumClicks
+
+#Create the squared term
+x2 <- x^2
+
+#Plot the new dataset
+plot(x, fitted(lm(y ~ x + x2)))
