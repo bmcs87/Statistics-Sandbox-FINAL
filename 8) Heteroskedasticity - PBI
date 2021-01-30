@@ -1,0 +1,66 @@
+# EDIT LOCATION FILE SAVED HERE (example: "C:/Users/resmi/Documents")
+setwd("C:/Users/resmi/Documents")
+
+# Call your dataset
+dataset <- read.delim("dataset.txt", quote = "")
+attach(dataset)
+
+#UPDATE THE X & Y AXIS NAMES; PLEASE REMEMBER TO ADD A PERIOD '.' BETWEEN AXIS NAME SPACE ("NonBrand.Clicks") & AXIS NAMES ARE CASE SENSITIVE ("NonBrand.Clicks" is different from "nonbrand.clicks")
+x <- dataset$Date
+y <- dataset$SumClicks
+
+#UPDATE WITH ANSWER TO IS X-AXIS A DATE?  IF YES, TYPE "Yes" or "No"
+is.x.date <- "Yes"
+
+#IF YOUR ANALYSIS INCLUDES A DATE, UPDATE THE FORMAT BELOW - KEEP FORMAT IN QUOTES.  LEAVE BLANK IF NO DATE.
+#TOP FORMATS INCLUDE- CDJ: "%m/%d/%Y", QP: "%b %d %Y", Agora: "%m/%d/%Y"; FOR OTHER FORMATS, REFERENCE https://www.statmethods.net/input/dates.html
+#IF ORIGINAL DATE INCLUDES A SLASH / OR DASH -, INCLUDE THAT IN YOUR FORMATTING
+x.date.format <- "%m/%d/%y"
+
+#INPUT YOUR X & Y AXIS NAMES - MAKE SURE TO KEEP THE NAME IN QUOTES!!  This code will rename your columns.
+colnames(dataset)[colnames(dataset) %in% c("Date", "SumClicks")] <- c("x", "y")
+
+#Install and Call Caret and e1071 Package
+install.packages("caret", repos = "http://cran.us.r-project.org")
+install.packages("e1071", repos = "http://cran.us.r-project.org")
+install.packages("lmtest", repos = "http://cran.us.r-project.org")
+library(caret)
+library(e1071)
+library(lmtest)
+
+#If / Else statement to check if X-Axis is a date
+if(is.x.date=="Yes"){
+
+#If x-axis is a date, format date to recognize current date format
+x.date.format <-as.Date(as.character(x),format=x.date.format)
+dataset$x.date.format = x.date.format
+
+# Run the heteroscedasticity transformation using the BoxCox method
+BCMod <- BoxCoxTrans(y)
+
+#Apply the transformed variable to a new dataframe
+dataset <- cbind(dataset, y_new=predict(BCMod, y))
+
+#Build the new regression model with the transformed data
+lmMod_bc <- lm(y_new ~ dataset$x.date.format, data=dataset)
+
+#Run the following code if x-axis is NOT a date
+} else { 
+  
+#This code below only works in R itself; does not work in PBI
+#Create a linear model and check if p-value is >0.05.  If so, combined with visual analysis, continue with heteroscedasticity check
+lmMod <- lm(dataset$y ~ dataset$x)
+summary(lmMod)
+  
+# Run the heteroscedasticity transformation using the BoxCox method
+BCMod <- BoxCoxTrans(y)
+  
+#Apply the transformed variable to a new dataframe
+dataset <- cbind(dataset, y_new=predict(BCMod, y))
+  
+#Build the new regression model with the transformed data & close the If / Else statement
+lmMod_bc <- lm(y_new ~ dataset$x, data=dataset)
+}
+
+#Plot the new residuals model
+plot(lmMod_bc, which=1)
