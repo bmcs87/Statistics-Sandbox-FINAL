@@ -1,0 +1,35 @@
+# EDIT LOCATION FILE SAVED HERE (example: "C:/Users/resmi/Documents")
+setwd("C:/Users/resmi/Documents")
+
+# Call your dataset
+dataset <- read.delim("dataset.txt", quote = "")
+attach(dataset)
+
+#UPDATE THE X & Y AXIS NAMES; PLEASE REMEMBER TO ADD A PERIOD '.' BETWEEN AXIS NAME SPACE ("NonBrand.Clicks") & AXIS NAMES ARE CASE SENSITIVE ("NonBrand.Clicks" is different from "nonbrand.clicks")
+x <- dataset$SumSRPV
+y <- dataset$SumClicks
+
+#UPDATE WITH ANSWER TO IS X-AXIS A DATE?  IF YES, TYPE "Yes" or "No"
+is.x.date <- "No"
+
+#IF YOUR ANALYSIS INCLUDES A DATE, UPDATE THE FORMAT BELOW - KEEP FORMAT IN QUOTES.  LEAVE BLANK IF NO DATE.
+#TOP FORMATS INCLUDE- CDJ: "%m %d %Y", QP: "%b %d %Y", Agora: "%m %d %Y"; FOR OTHER FORMATS, REFERENCE https://www.statmethods.net/input/dates.html
+#IF ORIGINAL DATE INCLUDES A SLASH / OR DASH -, INCLUDE THAT IN YOUR FORMATTING
+x.date.format <- "%m/%d/%y"
+
+#If / Else statement to check if X-Axis is a date
+if(is.x.date=="Yes"){
+
+#Format date to recognize current date format
+x <-as.Date(as.character(x),format=x.date.format)
+
+###If x-axis a date, do the following three steps:  
+# 1) Plot the graph using only log(y)  
+plot(log(y) ~ x)
+  
+###If x-axis is NOT a date, do the following three steps:
+} else {
+  
+# 1) Plot the log-log
+plot(log(y) ~ log(x))
+}
