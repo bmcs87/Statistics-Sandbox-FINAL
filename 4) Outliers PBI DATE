@@ -1,0 +1,106 @@
+# EDIT LOCATION FILE SAVED HERE (example: "C:/Users/resmi/Documents")
+setwd("C:/Users/resmi/Documents")
+
+# Call your dataset
+dataset <- read.delim("dataset.txt", quote = "")
+attach(dataset)
+
+#UPDATE THE X & Y AXIS NAMES; PLEASE REMEMBER TO ADD A PERIOD '.' BETWEEN AXIS NAME SPACE ("NonBrand.Clicks") & AXIS NAMES ARE CASE SENSITIVE ("NonBrand.Clicks" is different from "nonbrand.clicks")
+x <- dataset$Date
+y <- dataset$SumClicks
+
+#UPDATE WITH ANSWER TO IS X-AXIS A DATE?  IF YES, TYPE "Yes" or "No" - KEEP THE WORD IN QUOTES.
+is.x.date <- "Yes"
+
+#IF YOUR ANALYSIS INCLUDES A DATE, UPDATE THE FORMAT BELOW - KEEP FORMAT IN QUOTES.  LEAVE BLANK IF NO DATE.
+#TOP FORMATS INCLUDE- CDJ: "%m/%d/%Y", QP: "%b %d %Y", Agora: "%m/%d/%Y"; FOR OTHER FORMATS, REFERENCE https://www.statmethods.net/input/dates.html
+#IF ORIGINAL DATE INCLUDES A SLASH / OR DASH -, INCLUDE THAT IN YOUR FORMATTING
+x.date.format <- "%m/%d/%y"
+
+#INPUT YOUR X & Y AXIS NAMES - MAKE SURE TO KEEP THE NAME IN QUOTES!!  This code will rename your columns.
+colnames(dataset)[colnames(dataset) %in% c("Date", "SumClicks")] <- c("x", "y")
+
+#Install and call packages
+pkgs <- c("tidyverse", "data.table", "outliers", "janitor", "rlang", "lubridate", "parsedate")
+install.packages(pkgs, repos = "http://cran.us.r-project.org")
+library(tidyverse)
+library(data.table)
+library(outliers)
+library(janitor)
+library(rlang)
+library(lubridate)
+library(parsedate)
+
+#Add Row Number to see which outlier rows are being removed
+dataset <- tibble::rowid_to_column(dataset, "ID")
+
+#Clean names which gives names are unique and consist only of the _ character, numbers, and letters.
+data<-janitor::clean_names(dataset)
+
+#Outlier function 
+outlier_function<-function(data_frame, column, outlier_label_column) {
+  column<-enquo(column)
+  outlier_label_column <- enquo(outlier_label_column)
+  data_frame %>% 
+    mutate(!!outlier_label_column:= scores(!!column,type="z", prob=0.95))
+}
+
+######If / Else statement to check if X-Axis is a date
+if(is.x.date=="Yes"){
+
+#Format date to recognize current date format
+x.date.format <-as.Date(as.character(dataset$x),format=x.date.format)
+dataset$x.date.format = x.date.format
+
+######If X-Axis is a date, remove outliers for y-axis only and follow these steps:
+######Y-Axis
+# 1) Outliers on Y-Axis; Outlier label column creates a new column with the outliers labeled
+dataset <-outlier_function(data_frame = dataset, column = y, 
+  outlier_label_column = y.outlier)
+  
+# 2) Output of Y-Outlier
+y.outlier <- (filter(dataset, y.outlier==TRUE))
+  
+# 3) Name Y-Outlier
+y.id.outlier <- which(dataset$y.outlier == TRUE, arr.ind=TRUE)
+  
+# 4) #Remove Y-Outlier
+dataset <- dataset[-c(y.id.outlier),]
+
+# 5) New Plot with Outliers Removed
+plot(dataset$y ~ dataset$x.date.format)
+
+######If X-Axis is NOT a date, remove outliers for X- AND Y-Axes
+} else {
+
+######X-Axis
+# 1) Outliers on X-Axis; Outlier label column creates a new column with the outliers labeled
+dataset <-outlier_function(data_frame = dataset, column = x, 
+    outlier_label_column = x.outlier)
+  
+# 2) Output of X-Outlier
+x.outlier <- (filter(dataset, x.outlier==TRUE))
+  
+# 3) Name X-Outlier
+x.id.outlier <- which(dataset$x.outlier == TRUE, arr.ind=TRUE)
+
+# 4) Remove X-Outlier
+dataset <- dataset[-c(x.id.outlier),]
+
+######Y-Axis
+# 5) Outliers on Y-Axis; Outlier label column creates a new column with the outliers labeled
+dataset <-outlier_function(data_frame = dataset, column = y, 
+    outlier_label_column = y.outlier)
+  
+# 6) Output of Y-Outlier
+y.outlier <- (filter(dataset, y.outlier==TRUE))
+  
+# 7) Name Y-Outlier
+y.id.outlier <- which(dataset$y.outlier == TRUE, arr.ind=TRUE)
+
+# 8) Remove Y-Outlier
+dataset <- dataset[-c(y.id.outlier),]
+
+# 10) New Plot with Outliers Removed
+plot(dataset$y ~ dataset$x)
+}
