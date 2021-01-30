@@ -27,10 +27,10 @@ x <-as.Date(as.character(x),format=x.date.format)
 # 1) Plot the graph using only log(y)  
 plot(log(y) ~ x)
   
-# 2) Summary statistics for linear model for log(y) only - only works in R; not PBI
+# 2) Summary statistics for linear model for log(y) only
 summary(lm(log(y)~x))
   
-# 3) Print new dataset out for log(y) only - only works in R itself; not PBI
+# 3) Set up new dataset printout for log(y) only
 options(max.print = .Machine$integer.max)
 dataset <- data.frame(dataset, log(y))
 
@@ -40,10 +40,10 @@ dataset <- data.frame(dataset, log(y))
 # 1) Plot the log-log
 plot(log(y) ~ log(x))
   
-# 2) Summary statistics for linear model - only works in R; not PBI
+# 2) Summary statistics for linear model
 summary(lm(log(y)~log(x)))
   
-# 3) Print new dataset out - only works in R itself; not PBI
+# 3) Set up new dataset printout for log(x) & log(y)
 options(max.print = .Machine$integer.max)
 dataset <- data.frame(dataset, log(y), log(x))
 }
