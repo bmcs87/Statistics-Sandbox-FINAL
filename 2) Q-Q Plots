@@ -1,0 +1,20 @@
+# EDIT LOCATION FILE SAVED HERE (example: "C:/Users/resmi/Documents")
+setwd("C:/LOCATION SAVED")
+
+# Call your dataset
+dataset <- read.delim("dataset.txt", quote = "")
+attach(dataset)
+ 
+# UPDATE THE VARIABLE YOU'D LIKE TO ASSES NORMALITY ON; PLEASE REMEMBER TO ADD A PERIOD '.' BETWEEN AXIS NAME SPACE ("NonBrand.Clicks") & AXIS NAMES ARE CASE SENSITIVE ("NonBrand.Clicks" is different from "nonbrand.clicks")
+# Q-Q Plots for data distribution, comment out line 13-16 with '#'
+ qqcheck <- dataset$X VALUE NAME
+
+# Q-Q Plot for regression model normality assumptions via residuals, comment out line 10 with '#'
+# y <- dataset$X VALUE NAME
+# x <- dataset$Y VALUE NAME
+# mod <- lm(y~x, data=dataset)
+# qqcheck <- mod$residuals
+
+# Run Q-Q plot & add reference line
+qqnorm(qqcheck)
+qqline(qqcheck)
