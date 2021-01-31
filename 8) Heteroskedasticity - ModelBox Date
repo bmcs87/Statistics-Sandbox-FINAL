@@ -6,8 +6,8 @@ dataset <- read.delim("dataset.txt", quote = "")
 attach(dataset)
 
 #UPDATE THE X & Y AXIS NAMES; PLEASE REMEMBER TO ADD A PERIOD '.' BETWEEN AXIS NAME SPACE ("NonBrand.Clicks") & AXIS NAMES ARE CASE SENSITIVE ("NonBrand.Clicks" is different from "nonbrand.clicks")
-x <- dataset$Start.Date.Of.User.Path
-y <- dataset$Total.Impressions.In.Path
+x <- dataset$SumSRPV
+y <- dataset$SumClicks
 
 #UPDATE WITH ANSWER TO IS X-AXIS A DATE?  IF YES, TYPE "Yes" or "No"
 is.x.date <- "No"
@@ -15,10 +15,10 @@ is.x.date <- "No"
 #IF YOUR ANALYSIS INCLUDES A DATE, UPDATE THE FORMAT BELOW - KEEP FORMAT IN QUOTES.  LEAVE BLANK IF NO DATE.
 #TOP FORMATS INCLUDE- CDJ: "%m/%d/%Y", QP: "%b %d %Y", Agora: "%m/%d/%Y"; FOR OTHER FORMATS, REFERENCE https://www.statmethods.net/input/dates.html
 #IF ORIGINAL DATE INCLUDES A SLASH / OR DASH -, INCLUDE THAT IN YOUR FORMATTING
-x.date.format <- "%b %d %Y"
+x.date.format <- "%m/%d/%y"
 
 #INPUT YOUR X & Y AXIS NAMES - MAKE SURE TO KEEP THE NAME IN QUOTES!!  This code will rename your columns.
-colnames(dataset)[colnames(dataset) %in% c("Start.Date.Of.User.Path", "Total.Impressions.In.Path")] <- c("x", "y")
+colnames(dataset)[colnames(dataset) %in% c("SumSRPV", "SumClicks")] <- c("x", "y")
 
 #Install and Call Caret and e1071 Package
 install.packages("caret", repos = "http://cran.us.r-project.org")
@@ -40,6 +40,18 @@ dataset$x.date.format = x.date.format
 lmMod <- lm(dataset$y ~ dataset$x.date.format)
 summary(lmMod)
 
+#Close the If / Else Statement
+} else {
+  
+#This code below only works in R itself; does not work in PBI
+#Create a linear model and check if p-value is >0.05.  If so, combined with visual analysis, continue with heteroscedasticity check
+lmMod <- lm(dataset$y ~ dataset$x)
+summary(lmMod)
+}
+
+#If / Else statement to check if X-Axis is a date
+if(is.x.date=="Yes"){
+
 # Run the heteroscedasticity transformation using the BoxCox method
 BCMod <- BoxCoxTrans(y)
 
@@ -50,13 +62,14 @@ dataset <- cbind(dataset, y_new=predict(BCMod, y))
 lmMod_bc <- lm(y_new ~ dataset$x.date.format, data=dataset)
 
 #Run the following code if x-axis is NOT a date
-} else { 
-  
-#This code below only works in R itself; does not work in PBI
-#Create a linear model and check if p-value is >0.05.  If so, combined with visual analysis, continue with heteroscedasticity check
-lmMod <- lm(dataset$y ~ dataset$x)
-summary(lmMod)
-  
+} else {} 
+
+#If / Else statement to check if X-Axis is a date
+if(is.x.date=="Yes"){  
+
+#If / Else statement if X-Axis is NOT a date
+} else {
+
 # Run the heteroscedasticity transformation using the BoxCox method
 BCMod <- BoxCoxTrans(y)
   
