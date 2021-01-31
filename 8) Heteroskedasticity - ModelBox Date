@@ -1,24 +1,24 @@
 # EDIT LOCATION FILE SAVED HERE (example: "C:/Users/resmi/Documents")
-setwd("C:/Users/resmi/Documents")
+setwd("C:/LOCATION SAVED")
 
 # Call your dataset
 dataset <- read.delim("dataset.txt", quote = "")
 attach(dataset)
 
 #UPDATE THE X & Y AXIS NAMES; PLEASE REMEMBER TO ADD A PERIOD '.' BETWEEN AXIS NAME SPACE ("NonBrand.Clicks") & AXIS NAMES ARE CASE SENSITIVE ("NonBrand.Clicks" is different from "nonbrand.clicks")
-x <- dataset$SumSRPV
-y <- dataset$SumClicks
+x <- dataset$X AXIS NAME
+y <- dataset$Y AXIS NAME
 
 #UPDATE WITH ANSWER TO IS X-AXIS A DATE?  IF YES, TYPE "Yes" or "No"
-is.x.date <- "No"
+is.x.date <- "Yes or No"
 
 #IF YOUR ANALYSIS INCLUDES A DATE, UPDATE THE FORMAT BELOW - KEEP FORMAT IN QUOTES.  LEAVE BLANK IF NO DATE.
 #TOP FORMATS INCLUDE- CDJ: "%m/%d/%Y", QP: "%b %d %Y", Agora: "%m/%d/%Y"; FOR OTHER FORMATS, REFERENCE https://www.statmethods.net/input/dates.html
 #IF ORIGINAL DATE INCLUDES A SLASH / OR DASH -, INCLUDE THAT IN YOUR FORMATTING
-x.date.format <- "%m/%d/%y"
+x.date.format <- "% % %"
 
 #INPUT YOUR X & Y AXIS NAMES - MAKE SURE TO KEEP THE NAME IN QUOTES!!  This code will rename your columns.
-colnames(dataset)[colnames(dataset) %in% c("SumSRPV", "SumClicks")] <- c("x", "y")
+colnames(dataset)[colnames(dataset) %in% c("X AXIS NAME", "Y AXIS NAME")] <- c("x", "y")
 
 #Install and Call Caret and e1071 Package
 install.packages("caret", repos = "http://cran.us.r-project.org")
@@ -35,15 +35,18 @@ if(is.x.date=="Yes"){
 x.date.format <-as.Date(as.character(x),format=x.date.format)
 dataset$x.date.format = x.date.format
 
-#This code below only works in R itself; does not work in PBI
+#Run Quantitative Check for p-value > 0.05 to determine if Heteroskedasticity is needed
+#Use this in combination of visual analysis of Residual graph
+#If X-Axis is a date, run summary statistics
 #Create a linear model and check if p-value is >0.05.  If so, combined with visual analysis, continue with heteroscedasticity check
 lmMod <- lm(dataset$y ~ dataset$x.date.format)
 summary(lmMod)
 
-#Close the If / Else Statement
+#If X-Axis is NOT a date, run summary statistic
 } else {
   
-#This code below only works in R itself; does not work in PBI
+#Run Quantitative Check for p-value > 0.05 to determine if Heteroskedasticity is needed
+#Use this in combination of visual analysis of Residual graph
 #Create a linear model and check if p-value is >0.05.  If so, combined with visual analysis, continue with heteroscedasticity check
 lmMod <- lm(dataset$y ~ dataset$x)
 summary(lmMod)
@@ -80,12 +83,15 @@ dataset <- cbind(dataset, y_new=predict(BCMod, y))
 lmMod_bc <- lm(y_new ~ dataset$x, data=dataset)
 }
 
+#Place Output Graph Here
 #Plot the new residuals model
 plot(lmMod_bc, which=1)
 
-#Summary statistics for linear model - only works in R; not PBI
+#Place Summary Statistics Here
+#Summary statistics for linear model
 summary(lmMod_bc)
 
-#Print new dataset out - only works in R itself; not PBI
+#Print Transformed Dataset Here (includes original dataset and transformed y-term)
+#Print new dataset out
 options(max.print = .Machine$integer.max)
 print(dataset)
