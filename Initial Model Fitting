@@ -1,0 +1,39 @@
+# EDIT LOCATION FILE SAVED HERE (example: "C:/Users/resmi/Documents")
+setwd("C:/Users/resmi/Documents")
+
+# Call your dataset
+dataset <- read.delim("dataset.txt", quote = "")
+attach(dataset)
+
+#UPDATE THE X & Y AXIS NAMES; PLEASE REMEMBER TO ADD A PERIOD '.' BETWEEN AXIS NAME SPACE ("NonBrand.Clicks") & AXIS NAMES ARE CASE SENSITIVE ("NonBrand.Clicks" is different from "nonbrand.clicks")
+x <- dataset$Request.Time
+y <- dataset$Metrics.Dwell.Time
+
+#UPDATE WITH ANSWER TO IS X-AXIS A DATE?  IF YES, TYPE "Yes" or "No"
+is.x.date <- "Yes"
+
+#IF YOUR ANALYSIS INCLUDES A DATE, UPDATE THE FORMAT BELOW - KEEP FORMAT IN QUOTES.  LEAVE BLANK IF NO DATE.
+#TOP FORMATS INCLUDE- CDJ: "%m/%d/%Y", QP: "%b %d %Y", Agora: "%m/%d/%Y"; FOR OTHER FORMATS, REFERENCE https://www.statmethods.net/input/dates.html
+#IF ORIGINAL DATE INCLUDES A SLASH / OR DASH -, INCLUDE THAT IN YOUR FORMATTING
+x.date.format <- "%m/%d/%Y"
+
+#If / Else statement to check if X-Axis is a date
+if(is.x.date=="Yes"){
+
+#Format date to recognize current date format
+x <-as.Date(as.character(x),format=x.date.format)
+}
+
+#1) Create the fitted data with a linear model using lm()
+fit <- lm(y ~ x)
+
+#2) The summary of the line will not print in PBI, but you can check in RStudio.
+summary(fit)
+
+#3) Graph the fitted line with some summary statistics in the title. This will NOT work for multiple regression since the visual would be greater than 2D.
+par(cex.main=1)
+plot(y~x, main = paste("Adj R2 = ",signif(summary(fit)$adj.r.squared, 5),
+                       "Intercept =",signif(fit$coef[[1]],5 ),
+                       " Slope =",signif(fit$coef[[2]], 5),
+                       " P =",signif(summary(fit)$coef[2,4], 5)))
+abline(fit, col ="red")
