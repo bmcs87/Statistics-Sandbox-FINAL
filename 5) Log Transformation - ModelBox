@@ -6,46 +6,75 @@ dataset <- read.delim("dataset.txt", quote = "")
 attach(dataset)
 
 #UPDATE THE X & Y AXIS NAMES; PLEASE REMEMBER TO ADD A PERIOD '.' BETWEEN AXIS NAME SPACE ("NonBrand.Clicks") & AXIS NAMES ARE CASE SENSITIVE ("NonBrand.Clicks" is different from "nonbrand.clicks")
-x <- dataset$SumSRPV
-y <- dataset$SumClicks
+x <- dataset$Request.Time
+y <- dataset$Metrics.Dwell.Time
 
 #UPDATE WITH ANSWER TO IS X-AXIS A DATE?  IF YES, TYPE "Yes" or "No"
-is.x.date <- "No"
+is.x.date <- "Yes"
 
 #IF YOUR ANALYSIS INCLUDES A DATE, UPDATE THE FORMAT BELOW - KEEP FORMAT IN QUOTES.  LEAVE BLANK IF NO DATE.
 #TOP FORMATS INCLUDE- CDJ: "%m %d %Y", QP: "%b %d %Y", Agora: "%m %d %Y"; FOR OTHER FORMATS, REFERENCE https://www.statmethods.net/input/dates.html
 #IF ORIGINAL DATE INCLUDES A SLASH / OR DASH -, INCLUDE THAT IN YOUR FORMATTING
-x.date.format <- "%m/%d/%y"
+x.date.format <- "%m/%d/%Y"
 
 #If / Else statement to check if X-Axis is a date
 if(is.x.date=="Yes"){
-
-#Format date to recognize current date format
-x <-as.Date(as.character(x),format=x.date.format)
-
-###If x-axis a date, do the following three steps:  
-# 1) Plot the graph using only log(y)  
-plot(log(y) ~ x)
   
-# 2) Summary statistics for linear model for log(y) only
-summary(lm(log(y)~x))
+  #Need to adjust for values of 0 since log(0) is undefined
+  ymin <- min(abs(y))
+  y <- if(ymin > 0) y else (y+1)
   
-# 3) Set up new dataset printout for log(y) only
-options(max.print = .Machine$integer.max)
-dataset <- data.frame(dataset, log(y))
-
-###If x-axis is NOT a date, do the following three steps:
+  #Format date to recognize current date format
+  x <-as.Date(as.character(x),format=x.date.format)
+  
+  ###If x-axis a date, do the following three steps:  
+  # 1) Plot the graph using only log(y)  
+  plot(log(y) ~ x)
+  
+  #Place Summary Statistics Here – Linear Model Using Only log(y)
+  # 2) Summary statistics for linear model for log(y) only
+  summary(lm(log(y)~x))
+  
+  # 3) Set up new dataset printout for log(y) only
+  #options(max.print = .Machine$integer.max)
+  #dataset <- data.frame(dataset, log(y))
+  
+  ###If x-axis is NOT a date, do the following three steps:
 } else {
+  #Need to adjust for values of 0 since log(0) is undefined
+  ymin <- min(abs(y))
+  xmin <- min(abs(x))
+  y <- if(ymin > 0) y else (y+1)
+  x <- if(xmin > 0) x else (x+1)
   
-# 1) Plot the log-log
-plot(log(y) ~ log(x))
+  #If X-Axis is a NOT Date, Place Output Graph Here
+  # 1) Plot the log-log
+  plot(log(y) ~ log(x))
   
-# 2) Summary statistics for linear model
-summary(lm(log(y)~log(x)))
+  #Place Summary Statistics Here – log(x) & log(y)
+  # 2) Summary statistics for linear model
+  summary(lm(log(y)~log(x)))
   
-# 3) Set up new dataset printout for log(x) & log(y)
-options(max.print = .Machine$integer.max)
-dataset <- data.frame(dataset, log(y), log(x))
+  # 3) Print new dataset out
+  #options(max.print = .Machine$integer.max)
+  #dataset <- data.frame(dataset, log(y), log(x))
 }
 
+#If / Else statement to check if X-Axis is a date
+if(is.x.date=="Yes"){
+  
+  ###If x-axis a date, do the following three steps: 
+  # 3) Set up new dataset printout for log(y) only
+  options(max.print = .Machine$integer.max)
+  dataset <- data.frame(dataset, log(y))
+  
+  ###If x-axis is NOT a date, do the following three steps:
+} else {
+  
+  # 3) Print new dataset out
+  options(max.print = .Machine$integer.max)
+  dataset <- data.frame(dataset, log(y), log(x))
+}  
+  
+##Print Transformed Dataset Here – Works for Both Date and Non-Date
 print(dataset)
