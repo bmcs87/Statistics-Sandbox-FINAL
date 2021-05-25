@@ -1,0 +1,51 @@
+#Install packages. Only have to install once.
+install.packages("readxl")
+install.packages("tidyverse")
+install.packages("caret")
+install.packages("data.table")
+
+#importing data
+library(readxl)
+library(tidyverse)
+library(caret)
+library(data.table)
+
+#Uncomment this out and use this to read txt or csv data. Use forward slashes.
+#dataset <- fread("your source file",header=TRUE,check.names = TRUE)
+
+#Use this to read excel data. Replace with your directory. Assign column data type as either date, numeric, text or logical(boolean). Add additional col type in lines 18 as needed. Use forward slashes.
+#Title your excel sheet name as "dataset"
+dataset <- read_excel("C:/Users/maarias/OneDrive - Microsoft/Autos/TRAIN/Regression/dataset.xlsx", 
+                   sheet = "dataset", col_types = c("date", "numeric", "numeric", "numeric", "numeric"))
+
+#Removes NAs from the data and checks columns names
+colnames(dataset)
+head(dataset)
+sum(is.na(dataset))
+dataset <- na.omit(dataset)
+
+#Assign dependent variable as y and independent variable as x
+#Rename the x and y variables to match your desired columns
+dataset <- dataset %>% rename(y = your.y.var.name.here, x = your.x.var.name.here)
+
+
+#Building a simple linear regression model with 10-fold cross-validation
+set.seed(123)
+simple_linear_reg_model <- train(
+  y~x, 
+  dataset,
+  method = "lm",
+  trControl = trainControl(
+    method = "cv", 
+    number = 10,
+    verboseIter = TRUE
+  )
+)
+
+#get RMSE Value. Not available in summary(simple_linear_reg_model)
+simple_linear_reg_model
+summary(simple_linear_reg_model)
+
+#Interpretation: The intercept represents the y value when x is zero
+# x represents the expected increase in y for each unit increase in x.
+# Adjusted R square represents the amount of variance in y that is explained by x. The higher the adjusted r square, the better the model
