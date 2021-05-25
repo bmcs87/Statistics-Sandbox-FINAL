@@ -1,0 +1,50 @@
+#Install packages. Only have to install once.
+install.packages("readxl")
+install.packages("tidyverse")
+install.packages("caret")
+install.packages("data.table")
+
+#importing data
+library(readxl)
+library(tidyverse)
+library(caret)
+library(data.table)
+
+#Uncomment this out and use this to read txt or csv data. Use forward slashes.
+#dataset <- fread("your source file",header=TRUE,check.names = TRUE)
+
+#Use this to read excel data.Replace with your directory.Assign column data type as either date, numeric, text or logical(boolean).Add additional col type in lines 18 as needed. Use forward slashes.
+#Title your excel sheet name as "dataset"
+dataset <- read_excel("C:/Users/maarias/OneDrive - Microsoft/Autos/TRAIN/Regression/dataset.xlsx", 
+                   sheet = "dataset", col_types = c("date", "numeric", "numeric", "numeric", "numeric"))
+
+#Removes NAs from the data and checks columns names
+colnames(dataset)
+head(dataset)
+dataset <- na.omit(dataset)
+
+#Assign dependent variable as y and independent variables as x1, x2, x3, etc
+#Rename the x and y variables to match your desired columns
+dataset <- dataset %>% rename(y = your.y.var.name, x1 = your.x1.var.name, x2 = your.x2.var.name, x3= your.x3.var.name)
+
+
+#Building a simple linear regression model with 10-fold cross-validation
+#Edit line 35 to regress for the number of x variables you actually have (y~ x1+x2...)
+set.seed(123)
+multiple_linear_reg_model <- train(
+  y~x1+x2+x3, 
+  dataset,
+  method = "lm",
+  trControl = trainControl(
+    method = "cv", 
+    number = 10,
+    verboseIter = TRUE
+  )
+)
+
+#get RMSE Value
+multiple_linear_reg_model
+summary(multiple_linear_reg_model)
+
+#Rerun your regression with only your significant variables to get more accurate coefficients.
+#A more sophisticated approach would be to use a variable selection method such as stepwise to select the variables to run for the regression.
