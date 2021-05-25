@@ -1,0 +1,59 @@
+#Install packages. Only have to install once.
+install.packages("readxl")
+install.packages("tidyverse")
+install.packages("caret")
+install.packages("data.table")
+
+#importing data
+library(readxl)
+library(tidyverse)
+library(caret)
+library(data.table)
+
+#Use this to read excel data. Replace with your directory. Assign column data type as either date, numeric, text or logical(boolean).Add additional col type in lines 15 as needed.Use forward slashes.
+#dataset <- read_excel("C:/Users/maarias/OneDrive - Microsoft/your_file_name.xlsx", 
+#                   sheet = "dataset", col_types = c("date", "text", "text", "numeric", "numeric"))
+
+#Enter your data(txt file) location here. Make sure to use forward slashes
+dataset <- fread("C:/Users/maarias/OneDrive - Microsoft/your_file_name.txt", header=TRUE, check.names = TRUE)
+
+#Illustrates first 5 rows of all columns
+head(dataset)
+
+#Assign dependent variable as y and independent variable as x. Must match the data column names (capitalization counts).
+#y value must be a binary value (1 or 0). If your y variable is a predicted value, then consider rounding up to 1 if >50% and down to 0 if less than 50% in your data preparation.
+dataset <- dataset %>% rename(
+                        x1 = your.X1.var.name,
+                        x2 = your.X2.var.name,
+                        x3 = your.X3.var.name, 
+                        y = your.y.var.name)
+
+#Removes NAs from the data and checks columns names
+colnames(dataset)
+head(dataset)
+sum(is.na(dataset))
+dataset <- na.omit(dataset)
+
+
+#Building a logistic regression model with 10-fold cross-validation
+#Adjust line 42, to represent the x variables you selected
+set.seed(123)
+logistic_reg_model <- train(
+  y~x1+x2+x3, 
+  dataset,
+  method = "glm",
+  family="binomial", 
+  trControl = trainControl(
+    method = "cv", 
+    number = 10,
+    verboseIter = TRUE
+  )
+)
+
+#get RMSE Value. Not available in summary(simple_linear_reg_model)
+logistic_reg_model
+summary(logistic_reg_model)
+
+#Rerun your regression with only your significant variables to get more accurate coefficients.
+#A more sophisticated approach would be to use a variable selection method such as stepwise to select the variables to run for the regression.
+
